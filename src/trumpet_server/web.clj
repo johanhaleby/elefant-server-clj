@@ -46,7 +46,7 @@
                                  trumpet-id (trumpet-repository/new-trumpet! {:latitude (parse-int latitude) :longitude (parse-int longitude)})]
                              (render-entry-point host trumpet-id))
                   })
-           (GET "/trumpeters/:trumpet-id/subscribe" [trumpet-id :as request]
+           (GET ["/trumpeters/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                 (json-response (trumpet-repository/get-trumpet (parse-int trumpet-id))))
            (GET "/reflect" r
                 (str r))
