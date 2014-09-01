@@ -9,6 +9,7 @@
   (some #(if (func %) %) data))
 
 (defn find-href-in-response [response]
+  "Returns a function to which you can pass a rel that returns the href matching this rel"
   (fn [rel]
     (->> response :_links (find-first #(= (:rel %) rel)) :href)))
 
