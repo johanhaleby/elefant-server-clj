@@ -4,7 +4,8 @@ A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
-FIXME
+1. Run `lein midje` to run all tests.
+2. Run `lein ring server-headless` to run all tests.
 
 ## License
 

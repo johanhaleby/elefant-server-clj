@@ -16,13 +16,14 @@
 
 (def content-type-hal "application/hal+json; charset=utf-8")
 
-(defn new-uuid [] (str (java.util.UUID/randomUUID)))
-
 (defn get-host [request]
   "Generate host from a ring request. For example 'http://localhost:5000'."
   (let [scheme (name (:scheme request))
         hostname (get (:headers request) "host")]
     (str scheme "://" hostname)))
+
+(defn parse-int [s]
+  (Integer/parseInt (re-find #"\A-?\d+" s)))
 
 (defn render-entry-point [hostname trumpet-id]
   (let [resource (-> (hal/new-resource hostname)
@@ -31,17 +32,22 @@
                      (hal/add-link :rel "trumpet" :href (str hostname "/trumpeters/" trumpet-id "/trumpet")))]
     (hal/resource->representation resource :json)))
 
+(defn json-response [data & [status]]
+  {:status  (or status 200)
+   :headers {"Content-Type" content-type-hal}
+   :body    (json/generate-string data)})
+
 (defroutes app
            (GET "/" [latitude longitude :as request]
                 {
                   :status  200
                   :headers {"Content-Type" content-type-hal}
                   :body    (let [host (get-host request)
-                                 trumpet-id (trumpet-repository/new-trumpet {:latitude latitude :longitude longitude})]
+                                 trumpet-id (trumpet-repository/new-trumpet! {:latitude (parse-int latitude) :longitude (parse-int longitude)})]
                              (render-entry-point host trumpet-id))
                   })
            (GET "/trumpeters/:trumpet-id/subscribe" [trumpet-id :as request]
-                (trumpet-repository/get-trumpet trumpet-id))
+                (json-response (trumpet-repository/get-trumpet trumpet-id)))
            (GET "/test" r
                 (str r))
            (ANY "*" []
