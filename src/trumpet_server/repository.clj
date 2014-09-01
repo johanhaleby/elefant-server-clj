@@ -18,6 +18,7 @@
     trumpet-id))
 
 (defn get-trumpet [id]
+  {:pre [(number? id)]}
   (@trumpets id))
 
 (defn clear-trumpets! []

@@ -47,8 +47,8 @@
                              (render-entry-point host trumpet-id))
                   })
            (GET "/trumpeters/:trumpet-id/subscribe" [trumpet-id :as request]
-                (json-response (trumpet-repository/get-trumpet trumpet-id)))
-           (GET "/test" r
+                (json-response (trumpet-repository/get-trumpet (parse-int trumpet-id))))
+           (GET "/reflect" r
                 (str r))
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))

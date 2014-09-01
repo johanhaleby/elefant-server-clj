@@ -29,5 +29,8 @@
 (fact "new-trumpet throws IAE when longitude is less than 0"
       (repository/new-trumpet! {:latitude 10 :longitude -20}) => (throws AssertionError))
 
+(fact "get-trumpet throws IAE when id is not a number"
+      (repository/get-trumpet "id") => (throws AssertionError))
+
 
 
