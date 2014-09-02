@@ -9,11 +9,9 @@
             [ring.adapter.jetty :as jetty]
             [cheshire.core :as json]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
-            [halresource.resource :as hal]
             [clojure.core.async :refer [go >! chan close!]]
             [ninjudd.eventual.server :refer [edn-events]]
             [ring.adapter.jetty-async :refer [run-jetty-async]]))
-
 
 (def content-type-hal "application/hal+json; charset=utf-8")
 
@@ -23,12 +21,14 @@
         hostname (get (:headers request) "host")]
     (str scheme "://" hostname)))
 
-(defn render-entry-point [hostname trumpet-id]
-  (let [resource (-> (hal/new-resource hostname)
-                     (hal/add-link :rel "subscribe" :href (str hostname "/trumpeters/" trumpet-id "/subscribe"))
-                     (hal/add-link :rel "location" :href (str hostname "/trumpeters/" trumpet-id "/location"))
-                     (hal/add-link :rel "trumpet" :href (str hostname "/trumpeters/" trumpet-id "/trumpet")))]
-    (hal/resource->representation resource :json)))
+(defn render-entry-point [[hostname trumpet-id latitude longitude]]
+  (let [data (-> {:_links {}}
+                 (update-in [:_links] assoc :self {:href (str hostname "?latitude=" latitude "&longitude=" longitude)})
+                 (update-in [:_links] assoc :subscribe {:href (str hostname "/trumpeters/" trumpet-id "/subscribe")})
+                 (update-in [:_links] assoc :location {:href (str hostname "/trumpeters/" trumpet-id "/location")})
+                 (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeters/" trumpet-id "/trumpet")})
+                 )]
+    data))
 
 (defn json-response [data & [status]]
   {:status  (or status 200)
@@ -37,15 +37,11 @@
 
 (defroutes app
            (GET "/" [latitude longitude :as request]
-                {
-                  :status  200
-                  :headers {"Content-Type" content-type-hal}
-                  :body    (let [lat (to-number latitude "latitude")
-                                 long (to-number longitude "longitude")
-                                 host (get-host request)
-                                 trumpet-id (trumpet-repository/new-trumpet! {:latitude lat :longitude long})]
-                             (render-entry-point host trumpet-id))
-                  })
+                (let [lat (to-number latitude "latitude")
+                      long (to-number longitude "longitude")
+                      host (get-host request)
+                      trumpet-id (trumpet-repository/new-trumpet! {:latitude lat :longitude long})]
+                  (json-response (render-entry-point [host trumpet-id lat long]))))
            (GET ["/trumpeters/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                 (let [trumpet-id (to-number trumpet-id)]
                   (json-response (trumpet-repository/get-trumpet trumpet-id))))
