@@ -1,4 +1,4 @@
-(ns trumpet-server.web
+(ns trumpet-server.rest
   (:require [trumpet-server.core :as core]
             [trumpet-server.repository :as trumpet-repository]
             [trumpet-server.number :refer [to-number]]

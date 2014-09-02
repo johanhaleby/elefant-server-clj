@@ -1,7 +1,7 @@
-(ns trumpet-server.web-test
+(ns trumpet-server.rest-test
   (:require [midje.sweet :refer :all]
             [clj-http.client :as client]
-            [trumpet-server.web :refer [start-server]]))
+            [trumpet-server.rest :refer [start-server]]))
 
 (def server (atom nil))
 
