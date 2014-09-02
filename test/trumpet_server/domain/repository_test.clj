@@ -4,10 +4,10 @@
 
 (with-state-changes [(before :facts (repository/clear-trumpets!))]
                     (fact "new-trumpet returns the id of the new trumpet"
-                          (repository/new-trumpet! {:latitude 21 :longitude 22}) => 1)
+                          (repository/new-trumpet! {:latitude 21 :longitude 22}) => {:id 1 :latitude 21 :longitude 22})
 
                     (fact "get-trumpet returns a trumpet with the specified id"
-                          (let [trumpet-id (repository/new-trumpet! {:latitude 21 :longitude 22})]
+                          (let [trumpet-id (-> (repository/new-trumpet! {:latitude 21 :longitude 22}) :id)]
                             (repository/get-trumpet trumpet-id)
                             ) => {:id 1 :latitude 21 :longitude 22}))
 

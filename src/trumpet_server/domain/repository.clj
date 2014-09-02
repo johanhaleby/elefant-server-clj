@@ -15,7 +15,7 @@
   (let [trumpet-id (next-trumpet-id)
         trumpet (assoc initial :id trumpet-id)]
     (swap! trumpets assoc trumpet-id trumpet)
-    trumpet-id))
+    trumpet))
 
 (defn get-trumpet [id]
   {:pre [(number? id)]}
