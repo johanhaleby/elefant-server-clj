@@ -17,6 +17,9 @@
     (swap! trumpets assoc trumpet-id trumpet)
     trumpet))
 
+(defn get-all-trumpets []
+  (vals (deref trumpets)))
+
 (defn get-trumpet [id]
   {:pre [(number? id)]}
   (@trumpets id))
