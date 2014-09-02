@@ -15,7 +15,7 @@
                               :dependencies [[midje "1.6.3"]]
                               :plugins      [[lein-midje "3.1.3"]
                                              [lein-ring "0.8.11"]]
-                              :ring         {:handler trumpet-server.rest/rest-api
+                              :ring         {:handler trumpet-server.api.rest/rest-api
                                              :port    5000}}
                        }
             :main trumpet-server.web)

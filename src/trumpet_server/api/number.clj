@@ -1,4 +1,4 @@
-(ns trumpet-server.number)
+(ns trumpet-server.api.number)
 
 (defn to-number [potential-number & [parameter-name]]
   (let [exeception-message (str "Number is required for parameter" (if (nil? parameter-name) "" (str " " parameter-name)) " but " (or potential-number "no value") " was supplied.")]

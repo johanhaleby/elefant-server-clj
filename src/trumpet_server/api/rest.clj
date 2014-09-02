@@ -1,7 +1,7 @@
-(ns trumpet-server.rest
+(ns trumpet-server.api.rest
   (:require [trumpet-server.domain.core :as core]
             [trumpet-server.domain.repository :as trumpet-repository]
-            [trumpet-server.number :refer [to-number]]
+            [trumpet-server.api.number :refer [to-number]]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.route :as route]
             [compojure.handler :as handler]
