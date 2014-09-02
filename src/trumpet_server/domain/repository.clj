@@ -1,4 +1,4 @@
-(ns trumpet-server.repository)
+(ns trumpet-server.domain.repository)
 
 (def last-trumpet-id (atom 0))
 

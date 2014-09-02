@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]
             [clj-http.client :as client]
             [trumpet-server.rest :refer [start-server]]
-            [trumpet-server.repository :refer [clear-trumpets!]]))
+            [trumpet-server.domain.repository :refer [clear-trumpets!]]))
 
 (def server (atom nil))
 

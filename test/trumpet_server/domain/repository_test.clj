@@ -1,6 +1,6 @@
-(ns trumpet-server.repository-test
+(ns trumpet-server.domain.repository-test
   (:require [midje.sweet :refer :all]
-            [trumpet-server.repository :as repository]))
+            [trumpet-server.domain.repository :as repository]))
 
 (with-state-changes [(before :facts (repository/clear-trumpets!))]
                     (fact "new-trumpet returns the id of the new trumpet"
