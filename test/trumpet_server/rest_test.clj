@@ -1,7 +1,8 @@
 (ns trumpet-server.rest-test
   (:require [midje.sweet :refer :all]
             [clj-http.client :as client]
-            [trumpet-server.rest :refer [start-server]]))
+            [trumpet-server.rest :refer [start-server]]
+            [trumpet-server.repository :refer [clear-trumpets!]]))
 
 (def server (atom nil))
 
@@ -12,7 +13,8 @@
 
 (with-state-changes [(before :facts (reset! server (start-server)))
                      (after :facts (do (.stop @server)
-                                       (reset! server nil)))]
+                                       (reset! server nil)
+                                       (clear-trumpets!)))]
                     (fact "Entry point returns the correct links"
                           (def href-for-rel (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 22.2 "longitude" 21.2} :as :json})
                                                  :body
