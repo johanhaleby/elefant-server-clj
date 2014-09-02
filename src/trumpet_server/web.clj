@@ -1,6 +1,7 @@
 (ns trumpet-server.web
   (:require [trumpet-server.core :as core]
             [trumpet-server.repository :as trumpet-repository]
+            [trumpet-server.number :refer [to-number]]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.route :as route]
             [compojure.handler :as handler]
@@ -22,9 +23,6 @@
         hostname (get (:headers request) "host")]
     (str scheme "://" hostname)))
 
-(defn parse-int [s]
-  (Integer/parseInt (re-find #"\A-?\d+" s)))
-
 (defn render-entry-point [hostname trumpet-id]
   (let [resource (-> (hal/new-resource hostname)
                      (hal/add-link :rel "subscribe" :href (str hostname "/trumpeters/" trumpet-id "/subscribe"))
@@ -42,12 +40,15 @@
                 {
                   :status  200
                   :headers {"Content-Type" content-type-hal}
-                  :body    (let [host (get-host request)
-                                 trumpet-id (trumpet-repository/new-trumpet! {:latitude (parse-int latitude) :longitude (parse-int longitude)})]
+                  :body    (let [lat (to-number latitude "latitude")
+                                 long (to-number longitude "longitude")
+                                 host (get-host request)
+                                 trumpet-id (trumpet-repository/new-trumpet! {:latitude lat :longitude long})]
                              (render-entry-point host trumpet-id))
                   })
            (GET ["/trumpeters/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
-                (json-response (trumpet-repository/get-trumpet (parse-int trumpet-id))))
+                (let [trumpet-id (to-number trumpet-id)]
+                  (json-response (trumpet-repository/get-trumpet trumpet-id))))
            (GET "/reflect" r
                 (str r))
            (ANY "*" []
