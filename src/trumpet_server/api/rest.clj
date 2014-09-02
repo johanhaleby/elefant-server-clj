@@ -6,7 +6,6 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.java.io :as io]
-            [ring.adapter.jetty :as jetty]
             [cheshire.core :as json]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [clojure.core.async :refer [go >! chan close!]]
