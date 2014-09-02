@@ -24,8 +24,7 @@
                  (update-in [:_links] assoc :self {:href (str hostname "?latitude=" latitude "&longitude=" longitude)})
                  (update-in [:_links] assoc :subscribe {:href (str hostname "/trumpeters/" id "/subscribe")})
                  (update-in [:_links] assoc :location {:href (str hostname "/trumpeters/" id "/location")})
-                 (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeters/" id "/trumpet")})
-                 )]
+                 (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeters/" id "/trumpet")}))]
     data))
 
 (defn json-response [data & [status]]
