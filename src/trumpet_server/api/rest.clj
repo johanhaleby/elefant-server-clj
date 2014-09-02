@@ -10,8 +10,7 @@
             [cheshire.core :as json]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [clojure.core.async :refer [go >! chan close!]]
-            [ninjudd.eventual.server :refer [edn-events]]
-            [ring.adapter.jetty-async :refer [run-jetty-async]]))
+            [ninjudd.eventual.server :refer [edn-events]]))
 
 (def content-type-hal "application/hal+json; charset=utf-8")
 
@@ -52,10 +51,3 @@
 
 (def rest-api
   (wrap-defaults app api-defaults))
-
-(defn start-server [& [port]]
-  (let [port (Integer. (or port 5000))]
-    (run-jetty-async rest-api {:port port :join? false}))
-  )
-(defn -main [& [port]]
-  (start-server port))

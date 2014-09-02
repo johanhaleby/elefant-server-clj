@@ -18,4 +18,4 @@
                               :ring         {:handler trumpet-server.api.rest/rest-api
                                              :port    5000}}
                        }
-            :main trumpet-server.web)
+            :main trumpet-server.boot)
