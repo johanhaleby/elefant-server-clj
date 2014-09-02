@@ -7,9 +7,6 @@
 
 (def trumpets (atom {}))
 
-(defn- now []
-  (System/currentTimeMillis))
-
 (defn new-trumpet! [{:keys [latitude longitude] :as initial}]
   {:pre [(number? latitude) (> latitude 0) (number? longitude) (> longitude 0)]}
   (let [trumpet-id (next-trumpet-id)

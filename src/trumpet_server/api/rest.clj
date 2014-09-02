@@ -7,9 +7,7 @@
             [compojure.handler :as handler]
             [clojure.java.io :as io]
             [cheshire.core :as json]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
-            [clojure.core.async :refer [go >! chan close!]]
-            [ninjudd.eventual.server :refer [edn-events]]))
+            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]))
 
 (def content-type-hal "application/hal+json; charset=utf-8")
 
@@ -42,7 +40,6 @@
            (GET ["/trumpeters/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                 (let [trumpet-id (to-number trumpet-id)]
                   (json-response (trumpet-repository/get-trumpet trumpet-id))))
-
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
 
