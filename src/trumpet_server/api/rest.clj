@@ -1,5 +1,5 @@
 (ns trumpet-server.api.rest
-  (:require [trumpet-server.domain.repository :as trumpeter-repository]
+  (:require [trumpet-server.domain.repository :as trumpeteer-repository]
             [trumpet-server.api.number :refer [to-number]]
             [trumpet-server.domain.sse-service :as sse]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
@@ -20,9 +20,9 @@
 (defn render-entry-point [hostname {:keys [id latitude longitude]}]
   (let [data (-> {:_links {}}
                  (update-in [:_links] assoc :self {:href (str hostname "?latitude=" latitude "&longitude=" longitude)})
-                 (update-in [:_links] assoc :subscribe {:href (str hostname "/trumpeters/" id "/subscribe")})
-                 (update-in [:_links] assoc :location {:href (str hostname "/trumpeters/" id "/location")})
-                 (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeters/" id "/trumpet")})
+                 (update-in [:_links] assoc :subscribe {:href (str hostname "/trumpeteers/" id "/subscribe")})
+                 (update-in [:_links] assoc :location {:href (str hostname "/trumpeteers/" id "/location")})
+                 (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeteers/" id "/trumpet")})
                  (assoc :id id))]
     data))
 
@@ -36,19 +36,19 @@
                 (let [lat (to-number latitude "latitude")
                       long (to-number longitude "longitude")
                       host (get-host request)
-                      trumpeter (trumpeter-repository/new-trumpeter! {:latitude lat :longitude long})]
-                  (json-response (render-entry-point host trumpeter))))
-           (GET ["/trumpeters/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
+                      trumpeteer (trumpeteer-repository/new-trumpeteer! {:latitude lat :longitude long})]
+                  (json-response (render-entry-point host trumpeteer))))
+           (GET ["/trumpeteers/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                 (let [trumpet-id (to-number trumpet-id)
-                      trumpeter (trumpeter-repository/get-trumpeter trumpet-id)]
-                  (sse/subscribe trumpeter)))
-           (PUT ["/trumpeters/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request] ; trumpet-id must be an int otherwise route won't match
+                      trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)]
+                  (sse/subscribe trumpeteer)))
+           (PUT ["/trumpeteers/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request] ; trumpet-id must be an int otherwise route won't match
                 (let [trumpet-id (to-number trumpet-id "trumpet-id")
                       latitude (to-number latitude "latitude")
                       longitude (to-number longitude "longitude")
-                      trumpeter (trumpeter-repository/get-trumpeter trumpet-id)
-                      updated-trumpeter (assoc trumpeter :latitude latitude :longitude longitude)]
-                  (trumpeter-repository/update-trumpeter! updated-trumpeter))
+                      trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
+                      updated-trumpeteer (assoc trumpeteer :latitude latitude :longitude longitude)]
+                  (trumpeteer-repository/update-trumpeteer! updated-trumpeteer))
                 {:status 200})
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))

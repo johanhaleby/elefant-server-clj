@@ -1,4 +1,4 @@
-(ns trumpet-server.domain.trumpeter)
+(ns trumpet-server.domain.trumpeteer)
 
 (defn- deg2rad [deg]
   (* deg (/ Math/PI 180)))
@@ -22,12 +22,12 @@
   "A Trumpet take a map (args) containing:
 
    :trumpet - The trumpet (message) to broadcast
-   :targets - All trumpeters in the system
-   :broadcaster - Function that knows how to perform the actual broadcast to target trumpeters
+   :targets - All trumpeteers in the system
+   :broadcaster - Function that knows how to perform the actual broadcast to target trumpeteers
    :max-distance-unit - Optional distance (in meters) or 200 will be used"
   (trumpet [this args]))
 
-(defrecord Trumpeter [id latitude longitude]
+(defrecord Trumpeteer [id latitude longitude]
   Location Trumpet
   (distance-to [this other]
     (distance-to this other :meters))

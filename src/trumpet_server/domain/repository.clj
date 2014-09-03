@@ -1,39 +1,39 @@
 (ns trumpet-server.domain.repository
-  (:require [trumpet-server.domain.trumpeter :refer [->Trumpeter]]))
+  (:require [trumpet-server.domain.trumpeteer :refer [->Trumpeteer]]))
 
-(def last-trumpeter-id (atom 0))
+(def last-trumpeteer-id (atom 0))
 
-(defn- next-trumpeter-id []
-  (swap! last-trumpeter-id inc))
+(defn- next-trumpeteer-id []
+  (swap! last-trumpeteer-id inc))
 
-(def trumpeters (atom {}))
+(def trumpeteers (atom {}))
 
-(defn new-trumpeter! [{:keys [latitude longitude]}]
+(defn new-trumpeteer! [{:keys [latitude longitude]}]
   {:pre [(number? latitude) (> latitude 0) (number? longitude) (> longitude 0)]}
-  (let [trumpeter-id (next-trumpeter-id)
-        trumpeter (->Trumpeter trumpeter-id latitude longitude)]
-    (swap! trumpeters assoc trumpeter-id trumpeter)
-    trumpeter))
+  (let [trumpeteer-id (next-trumpeteer-id)
+        trumpeteer (->Trumpeteer trumpeteer-id latitude longitude)]
+    (swap! trumpeteers assoc trumpeteer-id trumpeteer)
+    trumpeteer))
 
-(defn update-trumpeter! [trumpeter]
-  {:pre [trumpeter (> (:id trumpeter) 0)
-         (number? (:latitude trumpeter)) (> (:latitude trumpeter) 0)
-         (number? (:longitude trumpeter)) (> (:longitude trumpeter) 0)]}
-  (let [trumpeter-id (:id trumpeter)
-        trumpeter (select-keys trumpeter [:id :latitude :longitude])]
-    (if (nil? (@trumpeters trumpeter-id))
-      (throw (IllegalArgumentException. (str "Cannot update trumpeter with id " trumpeter-id " because it doesn't exists"))))
-    (swap! trumpeters assoc trumpeter-id trumpeter)
-    trumpeter))
+(defn update-trumpeteer! [trumpeteer]
+  {:pre [trumpeteer (> (:id trumpeteer) 0)
+         (number? (:latitude trumpeteer)) (> (:latitude trumpeteer) 0)
+         (number? (:longitude trumpeteer)) (> (:longitude trumpeteer) 0)]}
+  (let [trumpeteer-id (:id trumpeteer)
+        trumpeteer (select-keys trumpeteer [:id :latitude :longitude])]
+    (if (nil? (@trumpeteers trumpeteer-id))
+      (throw (IllegalArgumentException. (str "Cannot update trumpeteer with id " trumpeteer-id " because it doesn't exists"))))
+    (swap! trumpeteers assoc trumpeteer-id trumpeteer)
+    trumpeteer))
 
-(defn get-all-trumpeters []
-  (vals (deref trumpeters)))
+(defn get-all-trumpeteers []
+  (vals (deref trumpeteers)))
 
-(defn get-trumpeter [id]
+(defn get-trumpeteer [id]
   {:pre [(number? id)]}
-  (@trumpeters id))
+  (@trumpeteers id))
 
-(defn clear-trumpeters! []
+(defn clear-trumpeteers! []
   (do
-    (reset! trumpeters {})
-    (reset! last-trumpeter-id 0)))
+    (reset! trumpeteers {})
+    (reset! last-trumpeteer-id 0)))
