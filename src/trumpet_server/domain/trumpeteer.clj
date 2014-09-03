@@ -27,7 +27,7 @@
    :max-distance-meters - Optional distance (in meters) or 200 will be used"
   (trumpet! [this args]))
 
-(def max-distance 200)
+(def default-max-distance 200)
 
 (defrecord Trumpeteer [id latitude longitude]
   Location Trumpet
@@ -40,11 +40,11 @@
           sum (+ lhs rhs)
           dist (-> sum Math/acos rad2deg (* 60 1.1515))]
       (convert-to-unit dist (or distance-unit :meters))))
-  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters] :or {max-distance-meters max-distance}}]
+  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters] :or {max-distance-meters default-max-distance}}]
     {:pre [trumpet trumpetees broadcast-fn]}
     (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
           targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
-          targets-in-range (filter #(<= (:distance %) (or max-distance-meters max-distance)) targets-with-distance)
+          targets-in-range (filter #(<= (:distance %) (or max-distance-meters default-max-distance)) targets-with-distance)
           messages-to-broadcast (map #(into {} {:id (:id %) :message {:message trumpet :distanceFromSource (:distance %)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
         (broadcast-fn (:id message) (:message message))))))
