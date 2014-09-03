@@ -1,4 +1,4 @@
-(ns trumpet-server.domain.trumpeter-test
+(ns trumpet-server.domain.trumpeter-distance-to-test
   (:require [midje.sweet :refer :all]
             [trumpet-server.domain.trumpeter :refer :all]))
 
