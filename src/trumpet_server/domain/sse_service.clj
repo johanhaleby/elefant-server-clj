@@ -8,7 +8,7 @@
   {:pre [trumpeter-id]}
   (println (str trumpeter-id " " message))
   (let [sse-stream (@subscribers trumpeter-id)]
-    go ((>! sse-stream message))))
+    (go (>! sse-stream message))))
 
 (defn subscribe [{trumpeter-id :id}]
   {:pre [trumpeter-id]}
