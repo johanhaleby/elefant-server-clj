@@ -47,7 +47,7 @@
                       longitude (to-number longitude "longitude")
                       trumpeter (trumpeter-repository/get-trumpeter trumpet-id)
                       updated-trumpeter (assoc trumpeter :latitude latitude :longitude longitude)]
-                  (trumpeter-repository/save-trumpeter! updated-trumpeter))
+                  (trumpeter-repository/update-trumpeter! updated-trumpeter))
                 {:status 200})
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))

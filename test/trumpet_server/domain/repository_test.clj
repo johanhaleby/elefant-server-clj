@@ -17,7 +17,22 @@
                           (repository/get-all-trumpeters) => (just (list trumpet1 trumpet2) :in-any-order))
 
                     (fact "get-all-trumpets returns empty list when no trumpets are defined"
-                          (empty? (repository/get-all-trumpeters)) => true))
+                          (empty? (repository/get-all-trumpeters)) => true)
+
+                    (fact "update-trumpeter stores updated properties"
+                          (def trumpeter (repository/new-trumpeter! {:latitude 10 :longitude 20}))
+                          (repository/update-trumpeter! (assoc trumpeter :latitude 11 :longitude 21))
+
+                          (repository/get-trumpeter (:id trumpeter)) => {:id (:id trumpeter) :latitude 11 :longitude 21})
+
+                    (fact "update-trumpeter doesn't store unknown properties"
+                          ; Given
+                          (def trumpeter (repository/new-trumpeter! {:latitude 10 :longitude 20}))
+                          ; When
+                          (repository/update-trumpeter! (assoc trumpeter :latitude 11 :longitude 21 :unknown 34))
+                          ; Then
+                          (repository/get-trumpeter (:id trumpeter)) => {:id (:id trumpeter) :latitude 11 :longitude 21}) ; unknown should not be persisted
+                    )
 
 (fact "new-trumpeter throws IAE when latitude is missing"
       (repository/new-trumpeter! {:longitude 20}) => (throws AssertionError))
@@ -40,5 +55,7 @@
 (fact "get-trumpet throws IAE when id is not a number"
       (repository/get-trumpeter "id") => (throws AssertionError))
 
+(fact "update-trumpeter throws IAE when trumpeter cannot be found"
+      (repository/update-trumpeter! {:id 2 :latitude 11 :longitude 21}) => (throws IllegalArgumentException))
 
 

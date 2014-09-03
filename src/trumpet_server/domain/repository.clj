@@ -15,14 +15,16 @@
     (swap! trumpeters assoc trumpeter-id trumpeter)
     trumpeter))
 
-(defn save-trumpeter! [trumpeter]
+(defn update-trumpeter! [trumpeter]
   {:pre [trumpeter (> (:id trumpeter) 0)
          (number? (:latitude trumpeter)) (> (:latitude trumpeter) 0)
          (number? (:longitude trumpeter)) (> (:longitude trumpeter) 0)]}
-  (let [trumpeter-id (:id trumpeter)]
-    (if (nil? (@trumpeters trumpeter-id)
-              (throw (IllegalArgumentException. "Cannot update trumpeter with id " trumpeter-id " because it doesn't exists"))))
-    (swap! trumpeters assoc trumpeter-id trumpeter)))
+  (let [trumpeter-id (:id trumpeter)
+        trumpeter (select-keys trumpeter [:id :latitude :longitude])]
+    (if (nil? (@trumpeters trumpeter-id))
+      (throw (IllegalArgumentException. (str "Cannot update trumpeter with id " trumpeter-id " because it doesn't exists"))))
+    (swap! trumpeters assoc trumpeter-id trumpeter)
+    trumpeter))
 
 (defn get-all-trumpeters []
   (vals (deref trumpeters)))
