@@ -22,10 +22,12 @@
   "A Trumpet take a map (args) containing:
 
    :trumpet - The trumpet (message) to broadcast
-   :targets - All trumpeteers in the system
-   :broadcaster - Function that knows how to perform the actual broadcast to target trumpeteers
-   :max-distance-unit - Optional distance (in meters) or 200 will be used"
-  (trumpet [this args]))
+   :trumpetees - All trumpetees in the system
+   :broadcast-fn - Function that knows how to perform the actual broadcast to target trumpeteers
+   :max-distance-meters - Optional distance (in meters) or 200 will be used"
+  (trumpet! [this args]))
+
+(def max-distance 200)
 
 (defrecord Trumpeteer [id latitude longitude]
   Location Trumpet
@@ -38,11 +40,11 @@
           sum (+ lhs rhs)
           dist (-> sum Math/acos rad2deg (* 60 1.1515))]
       (convert-to-unit dist (or distance-unit :meters))))
-  (trumpet [this {:keys [trumpet targets broadcaster max-distance-meters] :or {max-distance-meters 200}}]
-    {:pre [trumpet targets broadcaster]}
-    (let [targets-without-this (filter #(not= (:id %) (:id this)) targets)
+  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters] :or {max-distance-meters max-distance}}]
+    {:pre [trumpet trumpetees broadcast-fn]}
+    (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
           targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
-          targets-in-range (filter #(<= (:distance %) max-distance-meters) targets-with-distance)
+          targets-in-range (filter #(<= (:distance %) (or max-distance-meters max-distance)) targets-with-distance)
           messages-to-broadcast (map #(into {} {:id (:id %) :message {:message trumpet :distanceFromSource (:distance %)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
-        (broadcaster (:id message) (:message message))))))
+        (broadcast-fn (:id message) (:message message))))))

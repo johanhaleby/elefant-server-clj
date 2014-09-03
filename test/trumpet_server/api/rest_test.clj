@@ -30,6 +30,17 @@
                           ; When
                           (client/put (->> response :_links :location :href) {:form-params {"latitude" 23.2 "longitude" 25.2}})
                           ; Then
+                          (repository/get-trumpeteer (:id response)) => {:id 1, :latitude 23.2, :longitude 25.2})
+
+                    (fact "/trumpet broadcast the trumpet to trumpetees"
+                          ; Given
+                          (def response (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 55.583985 "longitude" 12.957578} :as :json}) :body))
+                          (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 55.584126 "longitude" 12.957406}})
+
+                          ; When
+                          (client/post (->> response :_links :trumpet :href) {:form-params {"message" "My trumpet"}})
+
+                          ; Then
                           (repository/get-trumpeteer (:id response)) => {:id 1, :latitude 23.2, :longitude 25.2}))
 
 

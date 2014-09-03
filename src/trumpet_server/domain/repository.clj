@@ -1,5 +1,5 @@
 (ns trumpet-server.domain.repository
-  (:require [trumpet-server.domain.trumpeteer :refer [->Trumpeteer]]))
+  (:require [trumpet-server.domain.trumpeteer :refer [->Trumpeteer map->Trumpeteer]]))
 
 (def last-trumpeteer-id (atom 0))
 

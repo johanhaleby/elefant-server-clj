@@ -1,6 +1,7 @@
 (ns trumpet-server.api.rest
   (:require [trumpet-server.domain.repository :as trumpeteer-repository]
             [trumpet-server.api.number :refer [to-number]]
+            [trumpet-server.domain.trumpeteer :refer [trumpet!]]
             [trumpet-server.domain.sse-service :as sse]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.route :as route]
@@ -42,7 +43,7 @@
                 (let [trumpet-id (to-number trumpet-id)
                       trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)]
                   (sse/subscribe trumpeteer)))
-           (PUT ["/trumpeteers/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request] ; trumpet-id must be an int otherwise route won't match
+           (PUT ["/trumpeteers/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request]
                 (let [trumpet-id (to-number trumpet-id "trumpet-id")
                       latitude (to-number latitude "latitude")
                       longitude (to-number longitude "longitude")
@@ -50,6 +51,13 @@
                       updated-trumpeteer (assoc trumpeteer :latitude latitude :longitude longitude)]
                   (trumpeteer-repository/update-trumpeteer! updated-trumpeteer))
                 {:status 200})
+           (POST ["/trumpeteers/:trumpet-id/trumpet" :trumpet-id #"[0-9]+"] [trumpet-id message distance :as request]
+                 (let [trumpet-id (to-number trumpet-id "trumpet-id")
+                       distance (if (nil? distance) nil (to-number distance "distance"))
+                       trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
+                       trumpetees (trumpeteer-repository/get-all-trumpeteers)]
+                   (trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees trumpetees :broadcast-fn sse/broadcast-message}))
+                 {:status 200})
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
 
