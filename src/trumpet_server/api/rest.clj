@@ -1,6 +1,5 @@
 (ns trumpet-server.api.rest
-  (:require [trumpet-server.domain.core :as core]
-            [trumpet-server.domain.repository :as trumpet-repository]
+  (:require [trumpet-server.domain.repository :as trumpeter-repository]
             [trumpet-server.api.number :refer [to-number]]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.route :as route]
@@ -35,11 +34,11 @@
                 (let [lat (to-number latitude "latitude")
                       long (to-number longitude "longitude")
                       host (get-host request)
-                      trumpet (trumpet-repository/new-trumpet! {:latitude lat :longitude long})]
-                  (json-response (render-entry-point host trumpet))))
+                      trumpeter (trumpeter-repository/new-trumpeter! {:latitude lat :longitude long})]
+                  (json-response (render-entry-point host trumpeter))))
            (GET ["/trumpeters/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                 (let [trumpet-id (to-number trumpet-id)]
-                  (json-response (trumpet-repository/get-trumpet trumpet-id))))
+                  (json-response (trumpeter-repository/get-trumpeter trumpet-id))))
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
 

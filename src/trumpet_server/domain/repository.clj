@@ -1,27 +1,28 @@
-(ns trumpet-server.domain.repository)
+(ns trumpet-server.domain.repository
+  (:require [trumpet-server.domain.trumpeter :refer [->Trumpeter]]))
 
-(def last-trumpet-id (atom 0))
+(def last-trumpeter-id (atom 0))
 
-(defn- next-trumpet-id []
-  (swap! last-trumpet-id inc))
+(defn- next-trumpeter-id []
+  (swap! last-trumpeter-id inc))
 
-(def trumpets (atom {}))
+(def trumpeters (atom {}))
 
-(defn new-trumpet! [{:keys [latitude longitude] :as initial}]
+(defn new-trumpeter! [{:keys [latitude longitude]}]
   {:pre [(number? latitude) (> latitude 0) (number? longitude) (> longitude 0)]}
-  (let [trumpet-id (next-trumpet-id)
-        trumpet (assoc initial :id trumpet-id)]
-    (swap! trumpets assoc trumpet-id trumpet)
-    trumpet))
+  (let [trumpeter-id (next-trumpeter-id)
+        trumpeter (->Trumpeter trumpeter-id latitude longitude)]
+    (swap! trumpeters assoc trumpeter-id trumpeter)
+    trumpeter))
 
-(defn get-all-trumpets []
-  (vals (deref trumpets)))
+(defn get-all-trumpeters []
+  (vals (deref trumpeters)))
 
-(defn get-trumpet [id]
+(defn get-trumpeter [id]
   {:pre [(number? id)]}
-  (@trumpets id))
+  (@trumpeters id))
 
-(defn clear-trumpets! []
+(defn clear-trumpeters! []
   (do
-    (reset! trumpets {})
-    (reset! last-trumpet-id 0)))
+    (reset! trumpeters {})
+    (reset! last-trumpeter-id 0)))
