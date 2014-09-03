@@ -41,6 +41,14 @@
                 (let [trumpet-id (to-number trumpet-id)
                       trumpeter (trumpeter-repository/get-trumpeter trumpet-id)]
                   (sse/subscribe trumpeter)))
+           (PUT ["/trumpeters/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request] ; trumpet-id must be an int otherwise route won't match
+                (let [trumpet-id (to-number trumpet-id "trumpet-id")
+                      latitude (to-number latitude "latitude")
+                      longitude (to-number longitude "longitude")
+                      trumpeter (trumpeter-repository/get-trumpeter trumpet-id)
+                      updated-trumpeter (assoc trumpeter :latitude latitude :longitude longitude)]
+                  (trumpeter-repository/save-trumpeter! updated-trumpeter))
+                {:status 200})
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
 
