@@ -27,13 +27,16 @@
    :max-distance-meters - Optional distance (in meters) or 200 will be used"
   (trumpet! [this args]))
 
-(def default-max-distance 200)
+(defprotocol InRange
+  (filter-in-range [this trumpeteers]))
+
+(def default-max-distance-meters 200)
 
 (defn- new-uuid [] (.toString (java.util.UUID/randomUUID)))
 (defn- time-now [] (System/currentTimeMillis))
 
 (defrecord Trumpeteer [id latitude longitude]
-  Location Trumpet
+  Location Trumpet InRange
   (distance-to [this other]
     (distance-to this other :meters))
   (distance-to [_ {other-latitude :latitude other-longitude :longitude} distance-unit]
@@ -43,11 +46,14 @@
           sum (+ lhs rhs)
           dist (-> sum Math/acos rad2deg (* 60 1.1515))]
       (convert-to-unit dist (or distance-unit :meters))))
-  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters] :or {max-distance-meters default-max-distance}}]
+  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters] :or {max-distance-meters default-max-distance-meters}}]
     {:pre [trumpet trumpetees broadcast-fn]}
     (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
           targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
-          targets-in-range (filter #(<= (:distance %) (or max-distance-meters default-max-distance)) targets-with-distance)
+          targets-in-range (filter #(<= (:distance %) (or max-distance-meters default-max-distance-meters)) targets-with-distance)
           messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id (new-uuid) :timestamp (time-now)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
-        (broadcast-fn (:id message) (:trumpet message))))))
+        (broadcast-fn (:id message) (:trumpet message)))))
+  (filter-in-range [this trumpeteers]
+    {:pre [this trumpeteers]}
+    (filter #(<= (distance-to this % :meters) default-max-distance-meters) trumpeteers)))

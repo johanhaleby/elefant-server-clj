@@ -47,9 +47,11 @@
                       latitude (to-number latitude "latitude")
                       longitude (to-number longitude "longitude")
                       trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
-                      updated-trumpeteer (assoc trumpeteer :latitude latitude :longitude longitude)]
-                  (trumpeteer-repository/update-trumpeteer! updated-trumpeteer))
-                {:status 200})
+                      updated-trumpeteer (assoc trumpeteer :latitude latitude :longitude longitude)
+                      trumpetees (trumpeteer-repository/get-all-trumpeteers)
+                      number-of-trumpeteers-in-range (count (.filter-in-range updated-trumpeteer trumpetees))]
+                  (trumpeteer-repository/update-trumpeteer! updated-trumpeteer)
+                  (json-response {:trumpeteersInRange number-of-trumpeteers-in-range})))
            (POST ["/trumpeteers/:trumpet-id/trumpet" :trumpet-id #"[0-9]+"] [trumpet-id message distance :as request]
                  (let [trumpet-id (to-number trumpet-id "trumpet-id")
                        distance (if (nil? distance) nil (to-number distance "distance"))
