@@ -23,7 +23,7 @@
                  (update-in [:_links] assoc :subscribe {:href (str hostname "/trumpeteers/" id "/subscribe")})
                  (update-in [:_links] assoc :location {:href (str hostname "/trumpeteers/" id "/location")})
                  (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeteers/" id "/trumpet")})
-                 (assoc :id id))]
+                 (assoc :trumpeteerId id))]
     data))
 
 (defn json-response [data & [status]]

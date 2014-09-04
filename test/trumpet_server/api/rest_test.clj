@@ -37,7 +37,7 @@
                           ; When
                           (client/put (->> response :_links :location :href) {:form-params {"latitude" 23.2 "longitude" 25.2}})
                           ; Then
-                          (repository/get-trumpeteer (:id response)) => {:id 1, :latitude 23.2, :longitude 25.2})
+                          (repository/get-trumpeteer (:trumpeteerId response)) => {:id 1, :latitude 23.2, :longitude 25.2})
 
                     (fact "/trumpet broadcast the trumpet to trumpetees"
                           ; Given
@@ -61,7 +61,4 @@
                           ; Then
                           (def event (deref subscription 3000 :timed-out))
                           (:has-trumpet-event-type? event) => true
-                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything})
-
-                          ; Finally
-                          (shutdown-agents)))
+                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything})))
