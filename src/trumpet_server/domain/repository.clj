@@ -27,11 +27,11 @@
     trumpeteer))
 
 (defn get-all-trumpeteers []
-  (vals (deref trumpeteers)))
+  (map map->Trumpeteer (vals (deref trumpeteers))))
 
 (defn get-trumpeteer [id]
   {:pre [(number? id)]}
-  (@trumpeteers id))
+  (map->Trumpeteer (@trumpeteers id)))
 
 (defn clear-trumpeteers! []
   (do

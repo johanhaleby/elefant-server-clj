@@ -1,7 +1,6 @@
 (ns trumpet-server.api.rest
   (:require [trumpet-server.domain.repository :as trumpeteer-repository]
             [trumpet-server.api.number :refer [to-number]]
-            [trumpet-server.domain.trumpeteer :refer [trumpet!]]
             [trumpet-server.domain.sse-service :as sse]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.route :as route]
@@ -56,7 +55,7 @@
                        distance (if (nil? distance) nil (to-number distance "distance"))
                        trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
                        trumpetees (trumpeteer-repository/get-all-trumpeteers)]
-                   (trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees trumpetees :broadcast-fn sse/broadcast-message}))
+                   (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees trumpetees :broadcast-fn sse/broadcast-message}))
                  {:status 200})
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
