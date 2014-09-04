@@ -48,6 +48,6 @@
     (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
           targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
           targets-in-range (filter #(<= (:distance %) (or max-distance-meters default-max-distance)) targets-with-distance)
-          messages-to-broadcast (map #(into {} {:id (:id %) :message {:message trumpet :distanceFromSource (:distance %) :messageId (new-uuid) :timestamp (time-now)}}) targets-in-range)]
+          messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id (new-uuid) :timestamp (time-now)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
-        (broadcast-fn (:id message) (:message message))))))
+        (broadcast-fn (:id message) (:trumpet message))))))
