@@ -19,12 +19,12 @@
         hostname (get (:headers request) "host")]
     (str scheme "://" hostname context)))
 
-(defn render-entry-point [hostname {:keys [id latitude longitude]}]
+(defn render-entry-point [base-uri {:keys [id latitude longitude]}]
   (let [data (-> {:_links {}}
-                 (update-in [:_links] assoc :self {:href (str hostname "?latitude=" latitude "&longitude=" longitude)})
-                 (update-in [:_links] assoc :subscribe {:href (str hostname "/trumpeteers/" id "/subscribe")})
-                 (update-in [:_links] assoc :location {:href (str hostname "/trumpeteers/" id "/location")})
-                 (update-in [:_links] assoc :trumpet {:href (str hostname "/trumpeteers/" id "/trumpet")})
+                 (update-in [:_links] assoc :self {:href (str base-uri "?latitude=" latitude "&longitude=" longitude)})
+                 (update-in [:_links] assoc :subscribe {:href (str base-uri "/trumpeteers/" id "/subscribe")})
+                 (update-in [:_links] assoc :location {:href (str base-uri "/trumpeteers/" id "/location")})
+                 (update-in [:_links] assoc :trumpet {:href (str base-uri "/trumpeteers/" id "/trumpet")})
                  (assoc :trumpeteerId id))]
     data))
 
@@ -32,6 +32,24 @@
   {:status  (or status 200)
    :headers {"Content-Type" content-type-hal}
    :body    (json/generate-string data)})
+
+(defn- add-links-to-trumpet [base-uri broadcaster]
+  (fn [id trumpet]
+    (let [trumpet-with-links (assoc trumpet :_links {:echo {:href (str base-uri "/trumpeteers/" id "/echo") :method "post"}})]
+      (broadcaster id trumpet-with-links)
+      )))
+
+(defn- broadcast-trumpet! [{:keys [trumpet-id request distance message message-id broadcast-fn]}]
+  (let [trumpet-id (to-number trumpet-id "trumpet-id")
+        distance (if (nil? distance) nil (to-number distance "distance"))
+        trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
+        trumpetees (trumpeteer-repository/get-all-trumpeteers)
+        subscriber-ids (sse/get-subscriber-ids)
+        broadcast-fn (add-links-to-trumpet (get-base-uri request) broadcast-fn)
+        subscribing-trumpetees (filter #(some #{(:id %)} subscriber-ids) trumpetees)]
+    (log/info "Trumpet" message "received from" trumpet-id)
+    (let [receivers (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees subscribing-trumpetees :broadcast-fn broadcast-fn :message-id message-id})]
+      (json-response {:trumpeteersWithinDistance (count receivers)}))))
 
 (defroutes app
            (context "/api" []
@@ -45,7 +63,7 @@
                     (GET ["/trumpeteers/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                          (let [trumpet-id (to-number trumpet-id)
                                trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)]
-                           (sse/subscribe trumpeteer)))
+                           (sse/subscribe! trumpeteer)))
                     (PUT ["/trumpeteers/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request]
                          (let [trumpet-id (to-number trumpet-id "trumpet-id")
                                latitude (to-number latitude "latitude")
@@ -57,15 +75,9 @@
                            (trumpeteer-repository/update-trumpeteer! updated-trumpeteer)
                            (json-response {:trumpeteersInRange number-of-trumpeteers-in-range})))
                     (POST ["/trumpeteers/:trumpet-id/trumpet" :trumpet-id #"[0-9]+"] [trumpet-id message distance :as request]
-                          (let [trumpet-id (to-number trumpet-id "trumpet-id")
-                                distance (if (nil? distance) nil (to-number distance "distance"))
-                                trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
-                                trumpetees (trumpeteer-repository/get-all-trumpeteers)
-                                subscriber-ids (sse/get-subscriber-ids)
-                                subscribing-trumpetees (filter #(some #{(:id %)} subscriber-ids) trumpetees)]
-                            (log/info "Trumpet" message "received from" trumpet-id)
-                            (let [receivers (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees subscribing-trumpetees :broadcast-fn sse/broadcast-message})]
-                              (json-response {:trumpeteersWithinDistance (count receivers)})))))
+                          (broadcast-trumpet! {:trumpet-id trumpet-id :request request :distance distance :message message :broadcast-fn sse/broadcast-message!}))
+                    (POST ["/trumpeteers/:trumpet-id/echo" :trumpet-id #"[0-9]+"] [trumpet-id message distance messageId :as request]
+                          (broadcast-trumpet! {:trumpet-id trumpet-id :request request :distance distance :message message :message-id messageId :broadcast-fn sse/broadcast-message!})))
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
 

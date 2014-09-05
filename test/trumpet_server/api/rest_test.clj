@@ -78,7 +78,8 @@
                           ; Then
                           (def event (deref subscription 3000 :timed-out))
                           (:has-trumpet-event-type? event) => true
-                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything}))
+                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything :_links anything})
+                          (->> event :trumpet :_links :echo :href) => "http://127.0.0.1:5000/api/trumpeteers/2/echo")
 
                     (fact "/trumpet returns number of subscribed trumpeteers within distance"
                           ; Create trumpeteers

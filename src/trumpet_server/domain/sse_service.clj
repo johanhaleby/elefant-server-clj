@@ -8,7 +8,7 @@
 
 (def subscribers (atom {}))
 
-(defn broadcast-message [trumpetee-id message]
+(defn broadcast-message! [trumpetee-id message]
   {:pre [trumpetee-id]}
   (log/info "Sending message " (:message message) "with id" (:id message) "to trumpetee" trumpetee-id)
   (if-let [subscriber (@subscribers trumpetee-id)]
@@ -16,7 +16,7 @@
         (go (>! (:sse-stream subscriber) (with-meta message {:event-type "trumpet"}))))
     (log/warn "Failed to send message with id " (:id message) " because trumpetee " trumpetee-id " is not a subscriber.")))
 
-(defn subscribe [{trumpeteer-id :id}]
+(defn subscribe! [{trumpeteer-id :id}]
   {:pre [trumpeteer-id]}
   (log/info "New subscriber " trumpeteer-id)
   (let [sse-stream (chan)

@@ -48,12 +48,13 @@
           sum (+ lhs rhs)
           dist (-> sum Math/acos rad2deg (* 60 1.1515))]
       (convert-to-unit dist (or distance-unit :meters))))
-  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters] :or {max-distance-meters default-max-distance-meters}}]
+  (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters message-id] :or {max-distance-meters default-max-distance-meters}}]
     {:pre [trumpet trumpetees broadcast-fn]}
     (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
           targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
           targets-in-range (filter #(<= (:distance %) (select-max-distance-or-else max-distance-meters default-max-distance-meters)) targets-with-distance)
-          messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id (new-uuid) :timestamp (time/now)}}) targets-in-range)]
+          message-id (or message-id (new-uuid))
+          messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id message-id :timestamp (time/now)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
         (broadcast-fn (:id message) (:trumpet message)))
       targets-without-this))
