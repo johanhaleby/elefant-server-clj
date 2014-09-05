@@ -75,4 +75,5 @@
                           ; Then
                           (def event (deref subscription 3000 :timed-out))
                           (:has-trumpet-event-type? event) => true
-                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything})))
+                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything})
+                          (shutdown-agents)))

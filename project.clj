@@ -11,7 +11,9 @@
                            [clj-http "1.0.0"]
                            [com.ninjudd/eventual "0.4.1"]
                            [com.ninjudd/ring-async "0.3.1"]
-                           [org.clojure/tools.logging "0.3.0"]]
+                           [org.clojure/tools.logging "0.3.0"]
+                           [schejulure "1.0.0"][useful "0.8.8"]
+                           [useful "0.8.8"]]
             :profiles {:dev {
                               :dependencies [[midje "1.6.3"]]
                               :plugins      [[lein-midje "3.1.3"]

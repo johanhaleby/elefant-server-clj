@@ -1,4 +1,5 @@
-(ns trumpet-server.domain.trumpeteer)
+(ns trumpet-server.domain.trumpeteer
+  (:require [trumpet-server.domain.time :as time]))
 
 (defn- deg2rad [deg]
   (* deg (/ Math/PI 180)))
@@ -33,8 +34,6 @@
 (def default-max-distance-meters 200)
 
 (defn- new-uuid [] (.toString (java.util.UUID/randomUUID)))
-(defn- time-now [] (System/currentTimeMillis))
-
 
 (defn- select-max-distance-or-else [max-distance-meters default-max-distance-meters]
   (Math/min (or max-distance-meters default-max-distance-meters) default-max-distance-meters))
@@ -55,7 +54,7 @@
     (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
           targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
           targets-in-range (filter #(<= (:distance %) (select-max-distance-or-else max-distance-meters default-max-distance-meters)) targets-with-distance)
-          messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id (new-uuid) :timestamp (time-now)}}) targets-in-range)]
+          messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id (new-uuid) :timestamp (time/now)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
         (broadcast-fn (:id message) (:trumpet message)))))
   (filter-in-range [this trumpeteers]
