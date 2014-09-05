@@ -52,6 +52,33 @@
                           ; Then
                           (:trumpeteersInRange location-response) => 2)
 
+                    (fact "/echo broadcast the trumpet to trumpetees with the same messageId"
+                          ; Given
+
+                          ; Create trumpeteers
+                          (def trumpeteerResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.583985 "longitude" 12.957578} :as :json}) :body))
+                          (def trumpeteeResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.584126 "longitude" 12.957406} :as :json}) :body))
+
+
+                          ; Register trumpetee for subscription
+                          (def subscription (future (let [inputstream (:body (client/get (->> trumpeteeResponse :_links :subscribe :href) {:as :stream}))
+                                                          reader (io/reader inputstream)
+                                                          event (read-until-emptyline reader)
+                                                          trumpet (json/parse-string (re-find #"\{.*\}" event) true)
+                                                          has-trumpet-event-type? (.contains (re-find #"event:.*data:" event) "trumpet")]
+                                                      {:has-trumpet-event-type? has-trumpet-event-type? :trumpet trumpet})))
+
+                          ; Race-condition because subscription will return immeditaley and we'll post the trumpet before the subscription is registered.
+                          (Thread/sleep 500)
+
+                          ; When
+                          (client/post (str "http://127.0.0.1:5000/api/trumpeteers/" (->> trumpeteerResponse :trumpeteerId) "/echo") {:form-params {"message" "My trumpet" "messageId" "ABC123"}})
+
+                          ; Then
+                          (def event (deref subscription 3000 :timed-out))
+                          (:has-trumpet-event-type? event) => true
+                          (:trumpet event) => (just {:id "ABC123", :timestamp anything :message "My trumpet" :distanceFromSource anything :_links anything})
+                          (->> event :trumpet :_links :echo :href) => "http://127.0.0.1:5000/api/trumpeteers/2/echo")
 
                     (fact "/trumpet broadcast the trumpet to trumpetees"
                           ; Given
