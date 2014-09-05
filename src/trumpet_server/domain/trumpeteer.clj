@@ -55,7 +55,8 @@
           targets-in-range (filter #(<= (:distance %) (select-max-distance-or-else max-distance-meters default-max-distance-meters)) targets-with-distance)
           messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id (new-uuid) :timestamp (time/now)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
-        (broadcast-fn (:id message) (:trumpet message)))))
+        (broadcast-fn (:id message) (:trumpet message)))
+      targets-without-this))
   (filter-in-range [this trumpeteers]
     {:pre [this trumpeteers]}
     (filter #(<= (distance-to this % :meters) default-max-distance-meters) trumpeteers)))

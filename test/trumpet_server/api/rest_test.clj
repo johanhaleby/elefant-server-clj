@@ -69,11 +69,42 @@
                                                           has-trumpet-event-type? (.contains (re-find #"event:.*data:" event) "trumpet")]
                                                       {:has-trumpet-event-type? has-trumpet-event-type? :trumpet trumpet})))
 
+                          ; Race-condition because subscription will return immeditaley and we'll post the trumpet before the subscription is registered.
+                          (Thread/sleep 500)
+
                           ; When
                           (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"}})
 
                           ; Then
                           (def event (deref subscription 3000 :timed-out))
                           (:has-trumpet-event-type? event) => true
-                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything})
-                          (shutdown-agents)))
+                          (:trumpet event) => (just {:id anything, :timestamp anything :message "My trumpet" :distanceFromSource anything}))
+
+                    (fact "/trumpet returns number of subscribed trumpeteers within distance"
+                          ; Create trumpeteers
+                          (def trumpeteerResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.583985 "longitude" 12.957578} :as :json}) :body))
+                          (def trumpeteeResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.584126 "longitude" 12.957406} :as :json}) :body))
+
+                          (def subscription (future (->> (client/get (->> trumpeteeResponse :_links :subscribe :href) {:as :stream}) :body)))
+
+                          (deref subscription 3000 :timed-out)
+                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => 1)
+
+                    (fact "/trumpet returns doesn't return unsubscribed trumpeteers or self"
+                          ; Create trumpeteers
+                          (def trumpeteerResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.583985 "longitude" 12.957578} :as :json}) :body))
+                          (def trumpeteeResponse1 (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.584326 "longitude" 12.958406} :as :json}) :body))
+                          (def trumpeteeResponse2 (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.584126 "longitude" 12.957406} :as :json}) :body))
+                          (def trumpeteeResponse3 (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.584137 "longitude" 12.953406} :as :json}) :body))
+
+                          (def subscription0 (future (->> (client/get (->> trumpeteerResponse :_links :subscribe :href) {:as :stream}) :body)))
+                          (def subscription1 (future (->> (client/get (->> trumpeteeResponse1 :_links :subscribe :href) {:as :stream}) :body)))
+                          (def subscription3 (future (->> (client/get (->> trumpeteeResponse3 :_links :subscribe :href) {:as :stream}) :body)))
+
+                          ; Wait for subscriptions to register
+                          (map #(deref % 3000 :timed-out) [subscription0 subscription1 subscription3])
+
+                          ; Race-condition because subscription will return immeditaley and we'll post the trumpet before the subscription is registered.
+                          (Thread/sleep 500)
+
+                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => (eval 2) (shutdown-agents)))

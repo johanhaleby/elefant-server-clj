@@ -60,12 +60,12 @@
                           (let [trumpet-id (to-number trumpet-id "trumpet-id")
                                 distance (if (nil? distance) nil (to-number distance "distance"))
                                 trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
-                                trumpetees (trumpeteer-repository/get-all-trumpeteers)]
+                                trumpetees (trumpeteer-repository/get-all-trumpeteers)
+                                subscriber-ids (sse/get-subscriber-ids)
+                                subscribing-trumpetees (filter #(some #{(:id %)} subscriber-ids) trumpetees)]
                             (log/info "Trumpet" message "received from" trumpet-id)
-                            (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees trumpetees
-                                                   :broadcast-fn sse/broadcast-message}))
-                          {:status 200})
-                    )
+                            (let [receivers (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees subscribing-trumpetees :broadcast-fn sse/broadcast-message})]
+                              (json-response {:trumpeteersWithinDistance (count receivers)})))))
            (ANY "*" []
                 (route/not-found (slurp (io/resource "404.html")))))
 
