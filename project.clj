@@ -10,7 +10,8 @@
                            [cheshire "5.3.1"]
                            [clj-http "1.0.0"]
                            [com.ninjudd/eventual "0.4.1"]
-                           [com.ninjudd/ring-async "0.3.1"]]
+                           [com.ninjudd/ring-async "0.3.1"]
+                           [org.clojure/tools.logging "0.3.0"]]
             :profiles {:dev {
                               :dependencies [[midje "1.6.3"]]
                               :plugins      [[lein-midje "3.1.3"]

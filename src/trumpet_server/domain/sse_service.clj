@@ -1,16 +1,16 @@
 (ns trumpet-server.domain.sse-service
   (:require [clojure.core.async :refer [go >! chan close!]]
-            [ninjudd.eventual.server :refer [json-events]]))
+            [ninjudd.eventual.server :refer [json-events]]
+            [clojure.tools.logging :as log]))
 
 (def subscribers (atom {}))
 
 (defn broadcast-message [trumpetee-id message]
   {:pre [trumpetee-id]}
-  (println "Sending message with id " (:id message) " to trumpetee " trumpetee-id)
+  (log/info "Sending message with id " (:id message) " to trumpetee " trumpetee-id)
   (if-let [sse-stream (@subscribers trumpetee-id)]
     (go (>! sse-stream (with-meta message {:event-type "trumpet"})))
-    ; TODO Use loggging library
-    (println (str "Failed to send message with id " (:id message) " because trumpetee " trumpetee-id " is not a subscriber."))))
+    (log/info "Failed to send message with id " (:id message) " because trumpetee " trumpetee-id " is not a subscriber.")))
 
 (defn subscribe [{trumpeteer-id :id}]
   {:pre [trumpeteer-id]}
