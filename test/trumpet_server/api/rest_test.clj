@@ -23,17 +23,17 @@
                                        (repository/clear-trumpeteers!)
                                        (sse-service/clear-subscribers!)))]
                     (fact "Entry point returns the correct links"
-                          (def href-for-rel (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 22.2 "longitude" 21.2} :as :json})
+                          (def href-for-rel (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 22.2 "longitude" 21.2} :as :json})
                                                  :body
                                                  find-href-in-response))
-                          (href-for-rel :subscribe) => (just #"^http://127.0.0.1:5000/trumpeteers/\d/subscribe")
-                          (href-for-rel :location) => (just #"^http://127.0.0.1:5000/trumpeteers/\d/location")
-                          (href-for-rel :trumpet) => (just #"^http://127.0.0.1:5000/trumpeteers/\d/trumpet")
-                          (href-for-rel :self) => "http://127.0.0.1:5000?latitude=22.2&longitude=21.2")
+                          (href-for-rel :subscribe) => (just #"^http://127.0.0.1:5000/api/trumpeteers/\d/subscribe")
+                          (href-for-rel :location) => (just #"^http://127.0.0.1:5000/api/trumpeteers/\d/location")
+                          (href-for-rel :trumpet) => (just #"^http://127.0.0.1:5000/api/trumpeteers/\d/trumpet")
+                          (href-for-rel :self) => "http://127.0.0.1:5000/api?latitude=22.2&longitude=21.2")
 
                     (fact "/location updates location of trumpeteer"
                           ; Given
-                          (def response (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 22.2 "longitude" 21.2} :as :json}) :body))
+                          (def response (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 22.2 "longitude" 21.2} :as :json}) :body))
                           ; When
                           (client/put (->> response :_links :location :href) {:form-params {"latitude" 23.2 "longitude" 25.2}})
                           ; Then
@@ -42,9 +42,9 @@
 
                     (fact "/location updates location of trumpeteer"
                           ; Given
-                          (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 55.583985 "longitude" 12.957578}})
-                          (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 55.582111 "longitude" 12.957678}})
-                          (def reg-response (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 23.2 "longitude" 12.406} :as :json}) :body))
+                          (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.583985 "longitude" 12.957578}})
+                          (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.582111 "longitude" 12.957678}})
+                          (def reg-response (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 23.2 "longitude" 12.406} :as :json}) :body))
 
                           ; When
                           (def location-response (:body (client/put (->> response :_links :location :href) {:form-params {"latitude" 55.583111 "longitude" 12.957688} :as :json})))
@@ -57,8 +57,8 @@
                           ; Given
 
                           ; Create trumpeteers
-                          (def trumpeteerResponse (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 55.583985 "longitude" 12.957578} :as :json}) :body))
-                          (def trumpeteeResponse (->> (client/get "http://127.0.0.1:5000" {:query-params {"latitude" 55.584126 "longitude" 12.957406} :as :json}) :body))
+                          (def trumpeteerResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.583985 "longitude" 12.957578} :as :json}) :body))
+                          (def trumpeteeResponse (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.584126 "longitude" 12.957406} :as :json}) :body))
 
 
                           ; Register trumpetee for subscription
