@@ -7,7 +7,8 @@
             [compojure.handler :as handler]
             [clojure.java.io :as io]
             [cheshire.core :as json]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]))
+            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [clojure.tools.logging :as log]))
 
 (def content-type-hal "application/hal+json; charset=utf-8")
 
@@ -39,6 +40,7 @@
                                long (to-number longitude "longitude")
                                host (get-base-uri request)
                                trumpeteer (trumpeteer-repository/new-trumpeteer! {:latitude lat :longitude long})]
+                           (log/info "Registering trumpeteer")
                            (json-response (render-entry-point host trumpeteer))))
                     (GET ["/trumpeteers/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                          (let [trumpet-id (to-number trumpet-id)
@@ -59,7 +61,9 @@
                                 distance (if (nil? distance) nil (to-number distance "distance"))
                                 trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
                                 trumpetees (trumpeteer-repository/get-all-trumpeteers)]
-                            (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees trumpetees :broadcast-fn sse/broadcast-message}))
+                            (log/info "Trumpet" message "received from" trumpet-id)
+                            (.trumpet! trumpeteer {:trumpet message :max-distance-meters distance :trumpetees trumpetees
+                                                   :broadcast-fn sse/broadcast-message}))
                           {:status 200})
                     )
            (ANY "*" []

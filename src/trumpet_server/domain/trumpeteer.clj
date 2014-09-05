@@ -13,7 +13,6 @@
 (defmethod convert-to-unit :nautical_miles [dist _] (* dist 0.8684))
 (defmethod convert-to-unit :default [_ unit] (throw (IllegalArgumentException. (str "Unrecognized distance unit: " (name unit)))))
 
-
 ; Protocols doesn't support optional arguments so we need to make two methods
 (defprotocol Location
   (distance-to [this other]
