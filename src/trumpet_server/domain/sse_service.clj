@@ -33,8 +33,8 @@
 (defn- stale? [client]
   (< @(:last-accessed client) (client-expiry-time)))
 
-(defn- remove-stale-clients []
-  (log/info "Removing stale clients")
+(defn- evict-stale-clients! []
+  (log/info "Evicting stale SSE clients")
   (let [stale-clients (filter #(stale? (val %)) @clients)]
     (doseq [stale-client stale-clients]
       (log/info "Closing SSE channel for trumpeteer with id " (first stale-client))
@@ -42,5 +42,5 @@
   ; TODO Implement remove-vals instead of using lib
   (swap! clients #(remove-vals % stale?)))
 
-#_(def stale-client-remover
-  (schedule {:min (range 0 60 5)} remove-stale-clients))
+(def stale-clients-evictor
+  (schedule {:min (range 0 60 5)} evict-stale-clients!))
