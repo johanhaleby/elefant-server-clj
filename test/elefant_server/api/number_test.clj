@@ -1,6 +1,6 @@
-(ns trumpet-server.api.number-test
+(ns elefant-server.api.number-test
   (:require [midje.sweet :refer :all]
-            [trumpet-server.api.number :refer :all]))
+            [elefant-server.api.number :refer :all]))
 
 (fact "Throws NPE if potential-number is nul"
       (to-number nil) => (throws NullPointerException "Number is required for parameter but no value was supplied.")

@@ -1,6 +1,6 @@
-(ns trumpet-server.boot
-  (:require [trumpet-server.api.rest :refer [rest-api]]
-            [trumpet-server.site.elefant :refer [elefant-site]]
+(ns elefant-server.boot
+  (:require [elefant-server.api.rest :refer [rest-api]]
+            [elefant-server.site.elefant :refer [elefant-site]]
             [ring.adapter.jetty-async :refer [run-jetty-async]]
             [compojure.core :refer [routes]]
             [clojure.tools.logging :as log]

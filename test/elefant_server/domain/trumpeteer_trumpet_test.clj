@@ -1,6 +1,6 @@
-(ns trumpet-server.domain.trumpeteer-trumpet-test
+(ns elefant-server.domain.trumpeteer-trumpet-test
   (:require [midje.sweet :refer :all]
-            [trumpet-server.domain.trumpeteer :refer [->Trumpeteer]]))
+            [elefant-server.domain.trumpeteer :refer [->Trumpeteer]]))
 
 (fact "Send trumpet to all trumpeteers including self and those that are out-of-range"
       ; Given

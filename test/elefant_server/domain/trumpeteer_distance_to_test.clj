@@ -1,6 +1,6 @@
-(ns trumpet-server.domain.trumpeteer-distance-to-test
+(ns elefant-server.domain.trumpeteer-distance-to-test
   (:require [midje.sweet :refer :all]
-            [trumpet-server.domain.trumpeteer :refer :all]))
+            [elefant-server.domain.trumpeteer :refer :all]))
 
 (fact "distance-to calculates the correct distance"
       (def trumpeteer1 (->Trumpeteer 1, 55.583985, 12.957578))

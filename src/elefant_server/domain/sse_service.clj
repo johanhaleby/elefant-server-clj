@@ -1,8 +1,8 @@
-(ns trumpet-server.domain.sse-service
+(ns elefant-server.domain.sse-service
   (:require [clojure.core.async :refer [go >! chan close!]]
             [ninjudd.eventual.server :refer [json-events]]
             [clojure.tools.logging :as log]
-            [trumpet-server.domain.time :as time]
+            [elefant-server.domain.time :as time]
             [schejulure.core :refer [schedule]]
             [useful.map :refer [remove-vals]]))
 

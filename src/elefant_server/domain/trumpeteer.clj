@@ -1,5 +1,5 @@
-(ns trumpet-server.domain.trumpeteer
-  (:require [trumpet-server.domain.time :as time]))
+(ns elefant-server.domain.trumpeteer
+  (:require [elefant-server.domain.time :as time]))
 
 (defn- deg2rad [deg]
   (* deg (/ Math/PI 180)))

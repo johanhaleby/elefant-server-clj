@@ -1,3 +1,3 @@
-(ns trumpet-server.domain.time)
+(ns elefant-server.domain.time)
 
 (defn now [] (System/currentTimeMillis))

@@ -1,6 +1,6 @@
-(ns trumpet-server.domain.repository-test
+(ns elefant-server.domain.repository-test
   (:require [midje.sweet :refer :all]
-            [trumpet-server.domain.repository :as repository]))
+            [elefant-server.domain.repository :as repository]))
 
 (with-state-changes [(before :facts (repository/clear-trumpeteers!))]
                     (fact "new-trumpeteer returns the id of the new trumpeteer"

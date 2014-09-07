@@ -1,11 +1,11 @@
-(ns trumpet-server.api.rest-test
+(ns elefant-server.api.rest-test
   (:require [midje.sweet :refer :all]
             [clj-http.client :as client]
             [clojure.java.io :as io]
-            [trumpet-server.boot :refer [start-server]]
+            [elefant-server.boot :refer [start-server]]
             [cheshire.core :as json]
-            [trumpet-server.domain.sse-service :as sse-service]
-            [trumpet-server.domain.repository :as repository]))
+            [elefant-server.domain.sse-service :as sse-service]
+            [elefant-server.domain.repository :as repository]))
 
 (def server (atom nil))
 

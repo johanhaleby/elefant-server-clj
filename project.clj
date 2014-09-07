@@ -1,4 +1,4 @@
-(defproject trumpet-server "0.1.0-SNAPSHOT"
+(defproject elefant-server "0.1.0-SNAPSHOT"
             :description "FIXME: write description"
             :url "http://example.com/FIXME"
             :license {:name "Eclipse Public License"
@@ -20,9 +20,9 @@
                                      :dependencies [[midje "1.6.3"]]
                                      :plugins      [[lein-midje "3.1.3"]
                                                     [lein-ring "0.8.11"]]
-                                     :ring         {:handler trumpet-server.boot/site-and-api
+                                     :ring         {:handler elefant-server.boot/site-and-api
                                                     :port    5000}
                                      }
                        :production {:env {:production true}}
                        }
-            :main trumpet-server.boot)
+            :main elefant-server.boot)

@@ -1,7 +1,7 @@
-(ns trumpet-server.api.rest
-  (:require [trumpet-server.domain.repository :as trumpeteer-repository]
-            [trumpet-server.api.number :refer [to-number]]
-            [trumpet-server.domain.sse-service :as sse]
+(ns elefant-server.api.rest
+  (:require [elefant-server.domain.repository :as trumpeteer-repository]
+            [elefant-server.api.number :refer [to-number]]
+            [elefant-server.domain.sse-service :as sse]
             [compojure.core :refer [defroutes GET PUT POST DELETE ANY context]]
             [compojure.route :as route]
             [compojure.handler :as handler]

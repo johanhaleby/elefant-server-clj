@@ -1,1 +1,1 @@
-web: lein with-profile production trampoline run -m trumpet-server.boot
+web: lein with-profile production trampoline run -m elefant-server.boot
