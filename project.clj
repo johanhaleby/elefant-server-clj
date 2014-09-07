@@ -15,6 +15,7 @@
                            [schejulure "1.0.0"] [useful "0.8.8"]
                            [useful "0.8.8"]
                            [environ "1.0.0"]]
+            :min-lein-version "2.0.0"
             :profiles {:dev        {
                                      :dependencies [[midje "1.6.3"]]
                                      :plugins      [[lein-midje "3.1.3"]
