@@ -115,7 +115,7 @@
                           (def subscription (future (->> (client/get (->> trumpeteeResponse :_links :subscribe :href) {:as :stream}) :body)))
 
                           (deref subscription 3000 :timed-out)
-                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => 2)
+                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => 1)
 
                     (fact "/trumpet returns doesn't return unsubscribed trumpeteers or self" :it
                           ; Create trumpeteers
