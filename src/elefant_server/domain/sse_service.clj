@@ -10,7 +10,7 @@
 
 (defn broadcast-message! [trumpetee-id message]
   {:pre [trumpetee-id]}
-  (log/info "Sending message" (:message message) "with id" (:id message) "to trumpetee" trumpetee-id)
+  (log/info "Sending message \"" (:message message) "\" with id" (:id message) "to trumpetee" trumpetee-id)
   (if-let [subscriber (@subscribers trumpetee-id)]
     (do (reset! (:last-accessed subscriber) (time/now))
         (go (>! (:sse-stream subscriber) (with-meta message {:event-type "trumpet"}))))
