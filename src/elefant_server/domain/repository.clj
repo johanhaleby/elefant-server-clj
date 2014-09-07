@@ -31,7 +31,8 @@
 
 (defn get-trumpeteer [id]
   {:pre [(number? id)]}
-  (map->Trumpeteer (@trumpeteers id)))
+  (if-let [trumpeteer (@trumpeteers id)]
+    (map->Trumpeteer trumpeteer)))
 
 (defn clear-trumpeteers! []
   (do

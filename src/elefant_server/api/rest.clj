@@ -63,7 +63,9 @@
                     (GET ["/trumpeteers/:trumpet-id/subscribe" :trumpet-id #"[0-9]+"] [trumpet-id :as request] ; trumpet-id must be an int otherwise route won't match
                          (let [trumpet-id (to-number trumpet-id)
                                trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)]
-                           (sse/subscribe! trumpeteer)))
+                           (if (nil? trumpeteer)
+                             (json-response {:errorMessage (str "Couldn't find trumpeteer with id " trumpet-id)} 400)
+                             (sse/subscribe! trumpeteer))))
                     (PUT ["/trumpeteers/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request]
                          (let [trumpet-id (to-number trumpet-id "trumpet-id")
                                latitude (to-number latitude "latitude")

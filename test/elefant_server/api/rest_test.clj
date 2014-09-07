@@ -51,6 +51,13 @@
                           ; Then
                           (:trumpeteersInRange location-response) => 2)
 
+                    (fact "/subscribe returns status code 400 when trumpeteer wasn't found" :it
+                          ; Create trumpeteers
+                          (def response (client/get "http://127.0.0.1:5000/api/trumpeteers/2/subscribe" {:throw-exceptions false :as :json :coerce :always}))
+
+                          (:status response) => 400
+                          (->> response :body :errorMessage) => "Couldn't find trumpeteer with id 2")
+
                     (fact "/echo broadcast the trumpet to trumpetees with the same messageId" :it
                           ; Given
 
