@@ -10,4 +10,4 @@
            (route/not-found (slurp (io/resource "404.html"))))
 
 (def elefant-site
-  (wrap-defaults site site-defaults))
+  (wrap-defaults site (assoc-in site-defaults [:security :anti-forgery] false))) ; Turn off CSRF
