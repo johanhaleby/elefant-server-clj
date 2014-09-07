@@ -4,8 +4,8 @@ A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
-1. Run `lein midje` to run all tests. (Run `lein midje :autotest` to automatically run tests)
-2. Run `lein ring server-headless` to start server.
+1. Run `lein midje` to run all tests. (Run `lein midje :autotest :filter -it` to automatically run tests excluding unit tests)
+2. Run `lein run` to start the server. (`lein ring server-headless` doesn't work when subscribing to SSE channel since it doesn't start async jetty).
 
 ## License
 
