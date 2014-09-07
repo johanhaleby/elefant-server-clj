@@ -39,7 +39,6 @@
                           ; Then
                           (repository/get-trumpeteer (:trumpeteerId response)) => {:id 1, :latitude 23.2, :longitude 25.2})
 
-
                     (fact "/location updates location of trumpeteer" :it
                           ; Given
                           (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 55.583985 "longitude" 12.957578}})
