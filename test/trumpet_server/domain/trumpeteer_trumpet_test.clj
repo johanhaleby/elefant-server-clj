@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]
             [trumpet-server.domain.trumpeteer :refer [->Trumpeteer]]))
 
-(fact "Send trumpet to all trumpeteers execept self and those that are out-of-range"
+(fact "Send trumpet to all trumpeteers including self and those that are out-of-range"
       ; Given
       (def trumpeteer1 (->Trumpeteer 1, 55.583985, 12.957578)) ; self
       (def trumpeteer2 (->Trumpeteer 2, 55.584126, 12.957406))
@@ -19,7 +19,7 @@
                               :trumpet      "Hello World!"})
 
       ; Then
-      (keys (deref messages-sent)) => (just (list 2 3 4) :in-any-order))
+      (keys (deref messages-sent)) => (just (list 1 2 3 4) :in-any-order))
 
 (fact "Generated trumpet message contains the trumpet and distance from source"
       ; Given
@@ -40,9 +40,9 @@
       ; Then
       (def messages (vals (deref messages-sent)))
       (map #(:message %) messages) => (has every? #(= % "Hello World!"))
-      (map #(:distanceFromSource %) messages) => (has every? #(> % 0)))
+      (map #(:distanceFromSource %) messages) => (has every? #(>= % 0)))
 
-(fact "Send trumpet to all trumpeteers execept self and those that are out-of-range when explicity specifying max distance"
+(fact "Send trumpet to all trumpeteers including self and those that are out-of-range when explicity specifying max distance"
       ; Given
       (def trumpeteer1 (->Trumpeteer 1, 55.583985, 12.957578)) ; self
       (def trumpeteer2 (->Trumpeteer 2, 55.584126, 12.957406))
@@ -59,7 +59,7 @@
                               :trumpet             "Hello World!"
                               :max-distance-meters 150})
       ; Then
-      (keys (deref messages-sent)) => (just (list 2 3) :in-any-order))
+      (keys (deref messages-sent)) => (just (list 1 2 3) :in-any-order))
 
 (fact "uses 200 meters as distance when max-distance-in-meters is explicitly nil"
       ; Given
@@ -78,7 +78,7 @@
                               :trumpet             "Hello World!"
                               :max-distance-meters nil})
       ; Then
-      (keys (deref messages-sent)) => (just (list 2 3 4) :in-any-order))
+      (keys (deref messages-sent)) => (just (list 1 2 3 4) :in-any-order))
 
 
 (fact "uses 200 meters as distance when max-distance-in-meters is greater than 200"
@@ -98,9 +98,9 @@
                               :trumpet             "Hello World!"
                               :max-distance-meters 100000})
       ; Then
-      (keys (deref messages-sent)) => (just (list 2 3 4) :in-any-order))
+      (keys (deref messages-sent)) => (just (list 1 2 3 4) :in-any-order))
 
-(fact "filter-in-range returns all trumpeteers that are in range"
+(fact "filter-in-range returns all trumpeteers that are in range exlcuding self"
       ; Given
       (def trumpeteer1 (->Trumpeteer 1, 55.583985, 12.957578)) ; self
       (def trumpeteer2 (->Trumpeteer 2, 55.584126, 12.957406))

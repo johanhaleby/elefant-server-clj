@@ -116,7 +116,7 @@
                           (def subscription (future (->> (client/get (->> trumpeteeResponse :_links :subscribe :href) {:as :stream}) :body)))
 
                           (deref subscription 3000 :timed-out)
-                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => 1)
+                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => 2)
 
                     (fact "/trumpet returns doesn't return unsubscribed trumpeteers or self" :it
                           ; Create trumpeteers
@@ -135,4 +135,4 @@
                           ; Race-condition because subscription will return immeditaley and we'll post the trumpet before the subscription is registered.
                           (Thread/sleep 500)
 
-                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => (eval 2) (shutdown-agents)))
+                          (->> (client/post (->> trumpeteerResponse :_links :trumpet :href) {:form-params {"message" "My trumpet"} :as :json}) :body :trumpeteersWithinDistance) => (eval 3) (shutdown-agents)))

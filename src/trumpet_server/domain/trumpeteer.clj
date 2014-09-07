@@ -50,14 +50,13 @@
       (convert-to-unit dist (or distance-unit :meters))))
   (trumpet! [this {:keys [trumpet trumpetees broadcast-fn max-distance-meters message-id] :or {max-distance-meters default-max-distance-meters}}]
     {:pre [trumpet trumpetees broadcast-fn]}
-    (let [targets-without-this (filter #(not= (:id %) (:id this)) trumpetees)
-          targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) targets-without-this)
+    (let [targets-with-distance (map #(assoc % :distance (distance-to this % :meters)) trumpetees)
           targets-in-range (filter #(<= (:distance %) (select-max-distance-or-else max-distance-meters default-max-distance-meters)) targets-with-distance)
           message-id (or message-id (new-uuid))
           messages-to-broadcast (map #(into {} {:id (:id %) :trumpet {:message trumpet :distanceFromSource (:distance %) :id message-id :timestamp (time/now)}}) targets-in-range)]
       (doseq [message messages-to-broadcast]
         (broadcast-fn (:id message) (:trumpet message)))
-      targets-without-this))
+      trumpetees))
   (filter-in-range [this trumpeteers]
     {:pre [this trumpeteers]}
     (filter #(<= (distance-to this % :meters) default-max-distance-meters) trumpeteers)))
