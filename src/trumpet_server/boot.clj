@@ -1,10 +1,16 @@
 (ns trumpet-server.boot
   (:require [trumpet-server.api.rest :refer [rest-api]]
-            [ring.adapter.jetty-async :refer [run-jetty-async]]))
+            [trumpet-server.site.elefant :refer [elefant-site]]
+            [ring.adapter.jetty-async :refer [run-jetty-async]]
+            [compojure.core :refer [routes]]
+            [clojure.tools.logging :as log]
+            [ring.middleware.defaults :refer [wrap-defaults]]))
+
+(def site-and-api (routes rest-api elefant-site))
 
 (defn start-server [& [port]]
   (let [port (Integer. (or port 5000))]
-    (run-jetty-async rest-api {:port port :join? false}))
+    (run-jetty-async site-and-api {:port port :join? false}))
   )
 (defn -main [& [port]]
   (start-server port))

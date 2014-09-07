@@ -77,9 +77,9 @@
                     (POST ["/trumpeteers/:trumpet-id/trumpet" :trumpet-id #"[0-9]+"] [trumpet-id message distance :as request]
                           (broadcast-trumpet! {:trumpet-id trumpet-id :request request :distance distance :message message :broadcast-fn sse/broadcast-message!}))
                     (POST ["/trumpeteers/:trumpet-id/echo" :trumpet-id #"[0-9]+"] [trumpet-id message distance messageId :as request]
-                          (broadcast-trumpet! {:trumpet-id trumpet-id :request request :distance distance :message message :message-id messageId :broadcast-fn sse/broadcast-message!})))
-           (ANY "*" []
-                (route/not-found (slurp (io/resource "404.html")))))
+                          (broadcast-trumpet! {:trumpet-id trumpet-id :request request :distance distance :message message :message-id messageId}))
+                    (ANY "*" []
+                         (route/not-found (slurp (io/resource "404.html"))))))
 
 (def rest-api
   (wrap-defaults app api-defaults))

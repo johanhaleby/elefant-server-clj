@@ -12,13 +12,13 @@
                            [com.ninjudd/eventual "0.4.1"]
                            [com.ninjudd/ring-async "0.3.1"]
                            [org.clojure/tools.logging "0.3.0"]
-                           [schejulure "1.0.0"][useful "0.8.8"]
+                           [schejulure "1.0.0"] [useful "0.8.8"]
                            [useful "0.8.8"]]
             :profiles {:dev {
                               :dependencies [[midje "1.6.3"]]
                               :plugins      [[lein-midje "3.1.3"]
                                              [lein-ring "0.8.11"]]
-                              :ring         {:handler trumpet-server.api.rest/rest-api
+                              :ring         {:handler trumpet-server.boot/site-and-api
                                              :port    5000}}
                        }
             :main trumpet-server.boot)

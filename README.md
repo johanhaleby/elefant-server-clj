@@ -5,7 +5,7 @@ A Clojure library designed to ... well, that part is up to you.
 ## Usage
 
 1. Run `lein midje` to run all tests. (Run `lein midje :autotest` to automatically run tests)
-2. Run `lein ring server-headless` to run all tests.
+2. Run `lein ring server-headless` to start server.
 
 ## License
 
