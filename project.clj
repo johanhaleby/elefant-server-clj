@@ -25,4 +25,8 @@
                                      }
                        :production {:env {:production true}}
                        }
-            :main elefant-server.boot)
+            :main elefant-server.boot
+            :test-paths ["test" "src/test/clojure" "itest"]
+            :aliases {"itest" ["midje" ":filters" "it"]
+                      "test"  ["midje"]
+                      "utest" ["midje" ":filters" "-it"]})
