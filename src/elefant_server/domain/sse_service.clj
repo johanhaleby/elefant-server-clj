@@ -46,5 +46,5 @@
   ; TODO Implement remove-vals instead of using lib
   (swap! subscribers #(remove-vals % stale?)))
 
-(def stale-subscribers-evictor
+#_(def stale-subscribers-evictor
   (schedule {:min (range 0 60 5)} evict-stale-subscribers!))
