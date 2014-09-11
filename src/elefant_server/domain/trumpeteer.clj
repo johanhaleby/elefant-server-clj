@@ -59,4 +59,6 @@
       trumpetees))
   (filter-in-range [this trumpeteers]
     {:pre [this trumpeteers]}
-    (filter #(<= (distance-to this % :meters) default-max-distance-meters) trumpeteers)))
+    (let [trumpeteer-id (:id this)
+          trumpeteers-without-this (filter #(not= (:id %) trumpeteer-id) trumpeteers)]
+      (filter #(<= (distance-to this % :meters) default-max-distance-meters) trumpeteers-without-this))))

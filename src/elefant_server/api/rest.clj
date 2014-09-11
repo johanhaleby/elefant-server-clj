@@ -25,6 +25,7 @@
                  (update-in [:_links] assoc :subscribe {:href (str base-uri "/trumpeteers/" id "/subscribe")})
                  (update-in [:_links] assoc :location {:href (str base-uri "/trumpeteers/" id "/location")})
                  (update-in [:_links] assoc :trumpet {:href (str base-uri "/trumpeteers/" id "/trumpet")})
+                 (update-in [:_links] assoc :trumpeteer {:href (str base-uri "/trumpeteers/" id)})
                  (assoc :trumpeteerId id))]
     data))
 
@@ -66,15 +67,26 @@
                            (if (nil? trumpeteer)
                              (json-response {:errorMessage (str "Couldn't find trumpeteer with id " trumpet-id)} 400)
                              (sse/subscribe! trumpeteer))))
+                    (GET ["/trumpeteers/:trumpet-id" :trumpet-id #"[0-9]+"] [trumpet-id :as request]
+                         (let [trumpet-id (to-number trumpet-id)
+                               trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
+                               trumpeteers (trumpeteer-repository/get-all-trumpeteers)
+                               base-uri (get-base-uri request)
+                               subscriber-ids (sse/get-subscriber-ids)
+                               subscribing-trumpeters (filter #(some #{(:id %)} subscriber-ids) trumpeteers)
+                               subscribing-trumpeters-in-range (.filter-in-range trumpeteer subscribing-trumpeters)
+                               anonymous-subscribing-trumpeters-in-range (map #(select-keys % [:latitude :longitude]) subscribing-trumpeters-in-range) ; Remove id from each trumpeteer
+                               response-dto (assoc trumpeteer :_links {:self {:href (str base-uri "/trumpeteers/" trumpet-id)}} :trumpeteersInRange anonymous-subscribing-trumpeters-in-range)]
+                           (json-response response-dto)))
                     (PUT ["/trumpeteers/:trumpet-id/location" :trumpet-id #"[0-9]+"] [trumpet-id latitude longitude :as request]
                          (let [trumpet-id (to-number trumpet-id "trumpet-id")
                                latitude (to-number latitude "latitude")
                                longitude (to-number longitude "longitude")
                                trumpeteer (trumpeteer-repository/get-trumpeteer trumpet-id)
-                               updated-trumpeteer (assoc trumpeteer :latitude latitude :longitude longitude)
+                               trumpeteer-with-new-location (assoc trumpeteer :latitude latitude :longitude longitude)
                                trumpetees (trumpeteer-repository/get-all-trumpeteers)
-                               number-of-trumpeteers-in-range (count (.filter-in-range updated-trumpeteer trumpetees))]
-                           (trumpeteer-repository/update-trumpeteer! updated-trumpeteer)
+                               number-of-trumpeteers-in-range (count (.filter-in-range trumpeteer-with-new-location trumpetees))]
+                           (trumpeteer-repository/update-trumpeteer! trumpeteer-with-new-location)
                            (json-response {:trumpeteersInRange number-of-trumpeteers-in-range})))
                     (POST ["/trumpeteers/:trumpet-id/trumpet" :trumpet-id #"[0-9]+"] [trumpet-id message distance :as request]
                           (broadcast-trumpet! {:trumpet-id trumpet-id :request request :distance distance :message message :broadcast-fn sse/broadcast-message!}))
