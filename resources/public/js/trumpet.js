@@ -10,6 +10,7 @@ $(function () {
                 window.subscribeUrl = data['_links']["subscribe"]["href"];
                 window.trumpetUrl = data['_links']["trumpet"]["href"];
                 window.locationUrl = data['_links']["location"]["href"];
+                window.trumpeteerId = data['trumpeteerId'];
 
                 window.eventSource = new EventSource(subscribeUrl);
                 window.eventSource.addEventListener('trumpet', function (event) {
@@ -33,6 +34,10 @@ $(function () {
             }
         });
         $('#message').val("").focus();
+    });
+
+    $('#trumpeteer-btn').click(function () {
+        window.location.href = "trumpeteers.html?trumpeteerId="+window.trumpeteerId;
     });
 
     function geoLocationError(msg) {

@@ -15,48 +15,36 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
         $(function () {
+            $.ajax({
+                url: "/api/trumpeteers/" + getParameterByName("trumpeteerId"),
+                success: function (data) {
+                    var myLatlng = new google.maps.LatLng(data['latitude'], data['longitude']);
+                    var mapOptions = {
+                        zoom: 14,
+                        center: myLatlng
+                    };
+                    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
-            function geoLocationSuccess(position) {
-                console.log(position.coords.latitude);
-                console.log(position.coords.longitude);
-
-                $.ajax({
-                    url: "/api/trumpeteers",
-                    success: function (data) {
-                        var myLatlng = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-                        var mapOptions = {
-                            zoom: 14,
-                            center: myLatlng
-                        };
-                        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
-                        data.forEach(function (item) {
-                            var marker = new google.maps.Marker({
-                                position: new google.maps.LatLng(item.latitude, item.longitude),
-                                map: map,
-                                title: item.id
-                            });
+                    data['trumpeteersInRange'].forEach(function (item) {
+                        var marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(item.latitude, item.longitude),
+                            map: map,
+                            title: item.id
                         });
+                    });
+                    var bounds = new google.maps.LatLngBounds();
+                    data.forEach(function (item) {
+                        bounds.extend(new google.maps.LatLng(item.latitude, item.longitude));
+                    });
+                    map.fitBounds(bounds);
+                }
 
-                    }
-                });
+            });
+
+            function getParameterByName(name) {
+                var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+                return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
             }
-
-
-            function geoLocationError(msg) {
-            }
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError);
-
-                // Update location every 20 seconds
-                setInterval(function () {
-                    navigator.geolocation.getCurrentPosition(geoLocationSuccess, geoLocationError);
-                }, 20 * 1000);
-            }
-
-
-
         });
     </script>
 </head>
