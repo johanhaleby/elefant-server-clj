@@ -11,13 +11,12 @@
 (defn broadcast-message! [trumpeteer-id message]
   {:pre [trumpeteer-id]}
   (log/info "Sending message" (:message message) "with id" (:id message) "to trumpeteer" trumpeteer-id)
-  (if-let [subscriber (@subscribers trumpeteer-id)
-           stream (:sse-stream subscriber)]
+  (if-let [subscriber (@subscribers trumpeteer-id)]
     (do (reset! (:last-accessed subscriber) (time/now))
         (try
-          (go (>! stream (with-meta message {:event-type "trumpet"})))
+          (go (>! (:sse-stream subscriber) (with-meta message {:event-type "trumpet"})))
           (catch Exception e (do
-                               (close! stream)
+                               (close! (:sse-stream subscriber))
                                (log/warn "Couldn't send" (:message message) "with id" (:id message) "to trumpeteer" trumpeteer-id "because:\n" (.printStackTrace e) "\nWill remove subscriber.")
                                (swap! subscribers dissoc trumpeteer-id)))))
     (log/warn "Failed to send message with id" (:id message) "because trumpetee " trumpeteer-id " is not a subscriber.")))
@@ -52,5 +51,5 @@
   ; TODO Implement remove-vals instead of using lib
   (swap! subscribers #(remove-vals % stale?)))
 
-#_(def stale-subscribers-evictor
+(def stale-subscribers-evictor
   (schedule {:min (range 0 60 5)} evict-stale-subscribers!))
