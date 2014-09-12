@@ -21,7 +21,8 @@
                      (after :facts (do (.stop @server)
                                        (reset! server nil)
                                        (repository/clear-trumpeteers!)
-                                       (sse-service/clear-subscribers!)))]
+                                       (sse-service/clear-subscribers!)
+                                       (.shutdown schejulure.core/pool)))]
                     (fact "Entry point returns the correct links" :it
                           (def href-for-rel (->> (client/get "http://127.0.0.1:5000/api" {:query-params {"latitude" 22.2 "longitude" 21.2} :as :json})
                                                  :body
@@ -106,7 +107,7 @@
                           (Thread/sleep 500)
 
                           ; When
-                          (def response (:body (client/get (->> trumpeteerResponse :_links :trumpeteer :href)  {:as :json})))
+                          (def response (:body (client/get (->> trumpeteerResponse :_links :trumpeteer :href) {:as :json})))
 
                           ; Then
                           (:trumpeteersInRange response) => (just [{:longitude 12.95864, :latitude 55.58533} {:longitude 12.957406, :latitude 55.584126}] :in-any-order)
