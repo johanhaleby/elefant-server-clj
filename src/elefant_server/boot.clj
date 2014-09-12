@@ -14,5 +14,5 @@
     (run-jetty-async site-and-api {:port port :join? false}))
   )
 (defn -main [& [port]]
-  (.addShutdownHook (Runtime/getRuntime) (Thread. #(.shutdown schejulure.core/pool)))
+  (.addShutdownHook (Runtime/getRuntime) (Thread. #(.shutdownNow schejulure.core/pool)))
   (start-server port))
