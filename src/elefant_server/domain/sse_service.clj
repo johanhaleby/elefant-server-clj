@@ -11,11 +11,13 @@
 (defn broadcast-message! [trumpeteer-id message]
   {:pre [trumpeteer-id]}
   (log/info "Sending message" (:message message) "with id" (:id message) "to trumpeteer" trumpeteer-id)
-  (if-let [subscriber (@subscribers trumpeteer-id)]
+  (if-let [subscriber (@subscribers trumpeteer-id)
+           stream (:sse-stream subscriber)]
     (do (reset! (:last-accessed subscriber) (time/now))
         (try
-          (go (>! (:sse-stream subscriber) (with-meta message {:event-type "trumpet"})))
+          (go (>! stream (with-meta message {:event-type "trumpet"})))
           (catch Exception e (do
+                               (close! stream)
                                (log/warn "Couldn't send" (:message message) "with id" (:id message) "to trumpeteer" trumpeteer-id "because:\n" (.printStackTrace e) "\nWill remove subscriber.")
                                (swap! subscribers dissoc trumpeteer-id)))))
     (log/warn "Failed to send message with id" (:id message) "because trumpetee " trumpeteer-id " is not a subscriber.")))
